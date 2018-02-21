@@ -23,19 +23,23 @@ public class Main
         // Support de transmission 
         TestThread C = new TestThread("C"); 
             
+        
+        System.out.println("Taille du tampon: "); 
         // Lire la taille du tampon 
         int tailleTampon = sc.nextInt(); 
         
+        System.out.println("Délai de temporisation: ");
         // Lire le délai de temporisation 
         int timeOut = sc.nextInt(); 
         
+        System.out.println("Nom du fichier: ");
         // Lire le nom du fichier a copier 
         String nomFichier = sc.nextLine(); 
         
         // Lire l'emplacement de destination 
-        
+        System.out.println("La destination: ");
         String destination = sc.nextLine(); 
-        
+    
     }
     
 }
