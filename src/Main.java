@@ -34,11 +34,11 @@ public class Main
         
         System.out.println("Nom du fichier: ");
         // Lire le nom du fichier a copier 
-        String nomFichier = sc.nextLine(); 
+        String nomFichier = sc.next(); 
         
         // Lire l'emplacement de destination 
         System.out.println("La destination: ");
-        String destination = sc.nextLine(); 
+        String destination = sc.next(); 
     
     }
     
