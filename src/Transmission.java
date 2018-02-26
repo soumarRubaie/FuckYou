@@ -7,7 +7,7 @@ public class Transmission implements Runnable {
 
 	// Donné par les paramètres d'entrée
 	private int tempsLatence = 0;
-	private int typeErreur = 2;
+	private int typeErreur = 1;
 
 	//
 	private boolean statutEmission = true;
@@ -62,7 +62,8 @@ public class Transmission implements Runnable {
 		Random rand = new Random();
 		int randByte = rand.nextInt(donnees.length);
 		int randBit = rand.nextInt(7);
-		// donnees[randByte] ^= ~(1 << randBit); //Ou exclusif
+		System.out.println("[CANAL] Trame corrompue!\n Octet n°: " + randByte + "\nBit n°: " + randBit);
+		donnees[randByte] = (byte) (donnees[randByte]^((byte)Math.pow(2,randBit))); //Ou exclusif
 		trameEmise.setDonnes(donnees);
 	}
 
@@ -94,7 +95,6 @@ public class Transmission implements Runnable {
 						+ "\nReception: " + isDonneeRecu() +"\n");
 						signal.wait();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
