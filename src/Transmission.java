@@ -1,29 +1,30 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Transmission implements Runnable{
-	//Constante
-	private final int TAUX_ERREUR = 50;
-	
-	//Donné par les paramètres d'entrée
+public class Transmission implements Runnable {
+	// Constante
+	private final int TAUX_ERREUR = 100;
+
+	// Donné par les paramètres d'entrée
 	private int tempsLatence = 0;
-	private int typeErreur = 0;
-	
+	private int typeErreur = 2;
+
 	//
 	private boolean statutEmission = true;
 	private boolean statutReception = false;
 	private Trame trameEmise;
 	private Trame trameRecu;
+	private Object signal = new Object();
 	
 	
 	public void setTypeErreur(int e) {
 		typeErreur = e;
 	}
-	
+
 	public void setTempsLatence(int t) {
 		tempsLatence = t;
 	}
-	
+
 	public boolean isPretEmission() {
 		return statutEmission;
 	}
@@ -31,58 +32,94 @@ public class Transmission implements Runnable{
 	public boolean isDonneeRecu() {
 		return statutReception;
 	}
-	
+
 	public void setTrameEmise(Trame t) {
-		if (isPretEmission()) {
-			trameEmise = t;
+		synchronized(signal) {
+			if (isPretEmission()) {
+				trameEmise = t;
+				statutEmission = false;
+				signal.notify();
+			}
+		}
+	}
+
+	// Permet de récupérer les infos de la trame reçu
+	public Trame getTrameEmise() {
+		return trameRecu;
+	}
+	// Permet de notifier le support que la trame était pour nous
+	public void takeTrameEmise() {
+		synchronized(signal) {
+			statutReception = false;
+			signal.notify();
 		}
 	}
 	
-	//TODO Fonction de corruption des trames
-	private Trame corrompreTrame(Trame t) {
-		byte[] donnees = t.getDonnes();
+
+	// TODO Fonction de corruption des trames
+	private void corrompreTrame() {
+		byte[] donnees = trameEmise.getDonnes();
 		Random rand = new Random();
-		int  randByte = rand.nextInt(donnees.length);
-		int  randBit = rand.nextInt(7);
-		//donnees[randByte] ^= ~(1 << randBit); //Ou exclusif
-		return t;
+		int randByte = rand.nextInt(donnees.length);
+		int randBit = rand.nextInt(7);
+		// donnees[randByte] ^= ~(1 << randBit); //Ou exclusif
+		trameEmise.setDonnes(donnees);
 	}
-	
-	private void transmettreTrame() {
-		
-		//1 - Attendre le signal (quelqu'un veut envoyer quelque chose)
-		// TODO Signal de demande de transmission
-		
-		
-		//2 - Mettre les erreurs s'il y en a! (inverser X bits aléatoirement dans la trame?)
-		//TODO Mettre un % de chance d'erreur et l'appliquer
-		
-		//3 - Transmettre la trame (ou non)
-		switch(typeErreur) {
-		case 1:
-			trameRecu = corrompreTrame(trameEmise);
-			typeErreur = 0;
-			break;
-		case 2:
-			typeErreur = 0;
-			break;
-		default: 
-			trameRecu = trameEmise;
-		}
-		
-		//4 - Attendre le temps de latence
-		//5 - Mettre à "True" la reception d'un message
+
+	private void simulerLatence() {
 		try {
 			Thread.sleep(tempsLatence);
-			statutReception = true;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	@Override
-	public void run() {
-		transmettreTrame();
+
+	private void transmettreTrame() {
+		simulerLatence();
+		trameRecu = trameEmise;
+		synchronized(signal) {
+			statutReception = true;
+			statutEmission = true;
+			signal.notify();
+		}
 	}
-	
+
+	@Override
+	public void run(){
+		while (true) {
+			while(isDonneeRecu() || isPretEmission()) {
+				synchronized(signal) {
+					try {
+						System.out.println("[CANAL]\nEn attente d'un déblocage :\nEmission: "+ isPretEmission()
+						+ "\nReception: " + isDonneeRecu() +"\n");
+						signal.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			System.out.println("[CANAL]\nJe transmet une trame!");
+			// Application des erreurs
+			Random rand = new Random();
+			int randErreur = rand.nextInt(100);
+			if (randErreur < TAUX_ERREUR) {
+				System.out.println("[CANAL]\nErreur n°" + typeErreur + " appliquée");
+				switch (typeErreur) {
+				case 1:
+					corrompreTrame();
+					transmettreTrame();
+					break;
+				case 2:
+					statutEmission = true;
+					break;
+				default:
+					transmettreTrame();
+				}
+			} else {
+				transmettreTrame();
+			}
+			System.out.println("[CANAL]\nTrame transmise!");
+		}
+	}
 }
