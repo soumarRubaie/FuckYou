@@ -33,30 +33,34 @@ public class Transmission implements Runnable {
 		return statutReception;
 	}
 
-	public void setTrameEmise(Trame t) {
+	public boolean setTrameEmise(Trame t) {
 		synchronized(signal) {
 			if (isPretEmission()) {
 				trameEmise = t;
 				statutEmission = false;
 				signal.notify();
+				return true;
 			}
+			//retourne faux si on a pas réussi à mettre la trame (concurrence)
+			return false;
 		}
 	}
 
 	// Permet de récupérer les infos de la trame reçu
-	public Trame getTrameEmise() {
-		return trameRecu;
+	public Trame getTrameEmise(){
+		synchronized(signal) {
+			return trameRecu;
+		}
 	}
-	// Permet de notifier le support que la trame était pour nous
-	public void takeTrameEmise() {
+	// Permet de notifier le support que la trame était pour nous et qu'on l'a prise
+	public Trame takeTrameEmise() {
 		synchronized(signal) {
 			statutReception = false;
 			signal.notify();
+			return trameRecu;
 		}
 	}
 	
-
-	// TODO Fonction de corruption des trames
 	private void corrompreTrame() {
 		byte[] donnees = trameEmise.getDonnes();
 		Random rand = new Random();
