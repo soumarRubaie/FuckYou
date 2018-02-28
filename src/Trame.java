@@ -1,18 +1,23 @@
 
 public class Trame {
-	private int numeroTrame;
+	
 	private byte[] donnes;
 	private int tailleTrame;
-
-	public int getNumeroTrame() {
-		return numeroTrame;
+	// Le numéro de la trame sera généré automatiquement
+	private static int counter = 1; 
+	public final int numeroTrame;  
+	
+	public Trame(byte[] donnes,int tailleTrame){
+	    this.donnes=donnes; 
+	    this.tailleTrame= tailleTrame; 
+	    this.numeroTrame = counter++; 
 	}
-
-	public void setNumeroTrame(int numeroTrame) {
-		this.numeroTrame = numeroTrame;
+	
+	public int getNumTrame(){
+	    return this.numeroTrame; 
 	}
-
-	public byte[] getDonnes() {
+	
+	public byte[] getDonnes(){
 		return donnes;
 	}
 
