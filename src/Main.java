@@ -1,9 +1,14 @@
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main
 {
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws FileNotFoundException
     {       
         
         Scanner sc= new Scanner(System.in); 
@@ -38,8 +43,39 @@ public class Main
         
         // Lire l'emplacement de destination 
         System.out.println("La destination: ");
-        String destination = sc.next(); 
-    
+        String destination = sc.next();       
+        
+        File file = new File("ressources/emission/"+nomFichier); 
+        
+        FileInputStream fis = new FileInputStream(file); 
+        
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+        byte[] buf = new byte[1024]; 
+        
+        // Initialiser la taille de la trame au niveau de « A1 »
+        int M=0;
+        
+        // Lire le fichier octet par octet et me
+        try{
+            for (int i;(i=fis.read(buf)) !=-1;){
+                bos.write(buf,0,i);  
+                M++; 
+            }
+        }
+        catch (IOException ex) {
+            System.out.println("erreur lors de la copie");
+        }
+        
+        // mettre les données dans un tableau d'octet
+        
+        byte[] bytes = bos.toByteArray(); 
+     
+        // Crée un trame de M octets contenant l'information a transmettre et un numéro 
+        // de trame
+        
+        Trame trameA1 = new Trame(bytes,M); 
+        
+        
     }
     
 }
