@@ -14,11 +14,12 @@ public class Main
         Scanner sc= new Scanner(System.in); 
      
         // LLC émetteur
-        TestThread A1=  new TestThread("A1");  
+        A1_Thread A1=  new A1_Thread();  
         
         // MAC émetteur 
-        TestThread A2 = new TestThread("A2");   
+        A2_Thread A2 = new A2_Thread();   
         
+        /*
         // LLC récépteur
         TestThread B1 = new TestThread("B1"); 
         
@@ -27,7 +28,7 @@ public class Main
         
         // Support de transmission 
         TestThread C = new TestThread("C"); 
-            
+        */  
         
         System.out.println("Taille du tampon: "); 
         // Lire la taille du tampon 
@@ -75,6 +76,11 @@ public class Main
         
         Trame trameA1 = new Trame(bytes,M); 
         
+        
+        A1.start();
+        
+        
+        A2.start();
         
     }
     
