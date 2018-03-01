@@ -4,7 +4,9 @@ public class EmissionReception implements Runnable {
 	public int id = 0; // Id pour reconnaitre la station
 	private Trame trameAEmettre;
 	private Trame trameRecu;
-
+	private byte[] byteAEmettre;
+	private byte[] byteARecevoir;
+	
 	// Le canal de transmission et la TrameFactory associé au thread (A1 et C)
 	// Avec le signal de transmission partagé avec A1
 	private Transmission canal;
@@ -13,13 +15,18 @@ public class EmissionReception implements Runnable {
 	private Object signalTrameRecue;
 
 	// Tampons:
-	private ArrayList<Trame> tamponEmission = new ArrayList<Trame>();
-	private ArrayList<Trame> tamponReception = new ArrayList<Trame>();
+	private Tampon tamponEmission;
+	private Tampon tamponReception;
 
 	// Etat de la station vu par les autres threads
-	private boolean pretAEmettre;
-	private boolean pretARecevoir;
+	private boolean pretAEmettre = true;
+	private boolean pretARecevoir = true;
 
+	EmissionReception(int tailleTampons){
+		tamponEmission = new Tampon(tailleTampons);
+		tamponReception = new Tampon(tailleTampons);
+	}
+	
 	public boolean isPretAEmettre() {
 		return pretAEmettre;
 	};
@@ -42,21 +49,37 @@ public class EmissionReception implements Runnable {
 
 	private void traiterTrameAEmettre() {
 		// TODO Appliquer Hamming sur la trame
-		tamponEmission.add(trameAEmettre);
+		// TODO byteAEmettre = trameAEmettre.toByte();
+		while(!tamponEmission.ajouterTrame(byteAEmettre)) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		};
 		pretAEmettre = true;
 	}
 
 	private void envoyerTrame() {
 		// Si on arrive à envoyer la trame, on la retire du tampon
-		if (canal.setTrameEmise(tamponEmission.get(0))) {
-			tamponEmission.remove(0);
+		if (canal.setTrameEmise(tamponEmission.getLastTrame())) {
+			tamponEmission.freeLastTrame();
 		}
 	}
 
 	private void recevoirTrame() {
 		// Si la trame est pour cette station: la prendre
 		if (isTramePourMoi(canal.getTrameEmise())) {
-			tamponReception.add(canal.takeTrameEmise());
+			byteARecevoir = canal.takeTrameEmise();
+			while(!tamponReception.ajouterTrame(byteARecevoir)) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}	
 		}
 	}
 
@@ -68,7 +91,9 @@ public class EmissionReception implements Runnable {
 	private void traiterTrameRecu() {
 		// TODO : A1 : isPretARecevoir()
 		// TODO : Valider trame avec Hamming
+		// TODO : ByteToTrame()
 		// TODO : A1 : setTrameRecu()
+		
 	}
 
 	@Override
@@ -80,7 +105,7 @@ public class EmissionReception implements Runnable {
 				traiterTrameAEmettre();
 			}
 			// Si le canal est dispo et que j'ai une trame à envoyer:
-			if (!tamponEmission.isEmpty() && canal.isPretEmission()) {
+			if (!tamponEmission.estVide() && canal.isPretEmission()) {
 				envoyerTrame();
 			}
 
@@ -90,7 +115,7 @@ public class EmissionReception implements Runnable {
 				recevoirTrame();
 			}
 			// Si on a une trame receptionnée à traiter:
-			if (!tamponReception.isEmpty()) {
+			if (!tamponReception.estVide()) {
 				traiterTrameRecu();
 			}
 		}
