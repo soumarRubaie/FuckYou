@@ -12,8 +12,8 @@ public class Transmission implements Runnable {
 	//
 	private boolean statutEmission = true;
 	private boolean statutReception = false;
-	private Trame trameEmise;
-	private Trame trameRecu;
+	private byte[] trameEmise;
+	private byte[] trameRecu;
 	private Object signal = new Object();
 	
 	
@@ -33,7 +33,7 @@ public class Transmission implements Runnable {
 		return statutReception;
 	}
 
-	public boolean setTrameEmise(Trame t) {
+	public boolean setTrameEmise(byte[] t) {
 		synchronized(signal) {
 			if (isPretEmission()) {
 				trameEmise = t;
@@ -47,13 +47,13 @@ public class Transmission implements Runnable {
 	}
 
 	// Permet de récupérer les infos de la trame reçu
-	public Trame getTrameEmise(){
+	public byte[] getTrameEmise(){
 		synchronized(signal) {
 			return trameRecu;
 		}
 	}
 	// Permet de notifier le support que la trame était pour nous et qu'on l'a prise
-	public Trame takeTrameEmise() {
+	public byte[] takeTrameEmise() {
 		synchronized(signal) {
 			statutReception = false;
 			signal.notify();
@@ -62,13 +62,13 @@ public class Transmission implements Runnable {
 	}
 	
 	private void corrompreTrame() {
-		byte[] donnees = trameEmise.getDonnes();
+		byte[] donnees = trameEmise;
 		Random rand = new Random();
 		int randByte = rand.nextInt(donnees.length);
 		int randBit = rand.nextInt(7);
 		System.out.println("[CANAL] Trame corrompue!\n Octet n°: " + randByte + "\nBit n°: " + randBit);
 		donnees[randByte] = (byte) (donnees[randByte]^((byte)Math.pow(2,randBit))); //Ou exclusif
-		trameEmise.setDonnes(donnees);
+		trameEmise = donnees;
 	}
 
 	private void simulerLatence() {
