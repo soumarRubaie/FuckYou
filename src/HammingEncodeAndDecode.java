@@ -128,7 +128,7 @@ public class HammingEncodeAndDecode {
 		return bitArray2ByteArray(bitArrayRes);
 
 	}
-	
+	 
 	
 //	TODO
 //	fonction de verification 
