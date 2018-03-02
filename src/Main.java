@@ -8,7 +8,6 @@ public class Main
     {       
         
         Scanner sc= new Scanner(System.in); 
-     
 
         System.out.println("Entrer une Taille du tampon: "); 
 //        // Lire la taille du tampon 
@@ -23,8 +22,17 @@ public class Main
         String nomFichier = sc.next(); 
 //        
 //        // Lire l'emplacement de destination 
-//        System.out.println("La destination: ");
-//        String destination = sc.next();       
+        System.out.println("La destination: ");
+        String nomFichierDestination = sc.next(); 
+        
+//      // Lire le type d'erreur
+        System.out.println("Entrer un le taux d'erreur:   ");
+        int tauxErreur = sc.nextInt(); 
+        
+//      // Lire le type d'erreur
+        System.out.println("Entrer un le type d'erreur: \n \t INDICATIONS : \n 0  pour pas d'erreur \n 1 pour Corruption \n 2 pour Perte d'une trame  ");
+        int typeErreur = sc.nextInt(); 
+        
 //        sc.close();
 //        int tailleTampon = 10;
 //        int timeOut = 10;
@@ -42,12 +50,15 @@ public class Main
         EmissionReception B2 = new EmissionReception(tailleTampon, 2);
         A1_B1_Thread A1 = new A1_B1_Thread(1, A2, 2, true);
         A1_B1_Thread B1 = new A1_B1_Thread(2, B2, 1, false);
-        A1.setFileName("input.txt");
-        
-        
+        A1.setFileName(nomFichier);
+        A1.setFileNameOutPut(nomFichierDestination);
+        B1.setFileNameOutPut(nomFichierDestination);
         Transmission C = new Transmission();
         C.setTempsLatence(timeOut);
         
+        C.setTauxErreur(tauxErreur);
+        C.setTypeErreur(typeErreur);
+
         A2.setA1_B1(A1);
         A2.setCanal(C);
         B2.setA1_B1(B1);

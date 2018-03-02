@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 
 public class A1_B1_Thread extends Thread {
 	private String nomFichier;
+	private String nomFichierDestination;
 	private boolean pretARecevoir;
 	private Trame trameA1;
 	private Trame trameRecue;
@@ -30,7 +31,10 @@ public class A1_B1_Thread extends Thread {
 	public void setFileName(String nomFichier) {
 		this.nomFichier = nomFichier;
 	}
-
+	
+	public void setFileNameOutPut(String nomFichierDestination) {
+		this.nomFichierDestination = nomFichierDestination;
+	}
 	public boolean isPretARecevoir() {
 		return pretARecevoir;
 	}
@@ -53,7 +57,7 @@ public class A1_B1_Thread extends Thread {
 			if (!trameRecue.isACK()) {
 				// Ecriture dans le fichier
 					try {
-						PrintWriter writer = new PrintWriter(new FileOutputStream(new File("output.txt"), true));
+						PrintWriter writer = new PrintWriter(new FileOutputStream(new File("ressources/reception/" + nomFichierDestination), true));
 					for (byte x : trameRecue.getDonnes()) {
 						writer.print((char) x);
 					}
@@ -184,7 +188,7 @@ public class A1_B1_Thread extends Thread {
 		PrintWriter writer;
 		if(!read) {
 			try {
-				writer = new PrintWriter("output.txt", "utf-8");
+				writer = new PrintWriter("ressources/reception/" + nomFichierDestination, "utf-8");
 				writer.print("");
 				writer.close();
 			} catch (FileNotFoundException | UnsupportedEncodingException e2) {

@@ -4,7 +4,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Transmission implements Runnable {
 	// Constante
-	private final int TAUX_ERREUR = 100;
+	private  int tauxErreur;
 
 	// Donné par les paramètres d'entrée
 	private int tempsLatence = 0;
@@ -21,10 +21,13 @@ public class Transmission implements Runnable {
 	// Locker
 	Lock l = new ReentrantLock();
 
-	public void setTypeErreur(int e) {
-		typeErreur = e;
+	public void setTypeErreur(int typeErreur) {
+		this.typeErreur = typeErreur;
 	}
 
+	public void setTauxErreur(int tauxErreur) {
+		this.tauxErreur = tauxErreur;
+	}
 	public void setTempsLatence(int t) {
 		tempsLatence = t;
 	}
@@ -112,7 +115,7 @@ public class Transmission implements Runnable {
 			// Application des erreurs
 			Random rand = new Random();
 			int randErreur = rand.nextInt(100);
-			if (randErreur < TAUX_ERREUR) {
+			if (randErreur < tauxErreur) {
 				//System.out.println("[CANAL] Erreur n°" + typeErreur + " appliquée");
 				switch (typeErreur) {
 				case 1:
@@ -122,6 +125,7 @@ public class Transmission implements Runnable {
 				case 2:
 					l.lock();
 					statutEmission = true;
+					System.out.println(" Trame perdue !");
 					l.unlock();
 					break;
 				default:
