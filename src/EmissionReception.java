@@ -11,7 +11,7 @@ public class EmissionReception implements Runnable {
 	// Le canal de transmission et la TrameFactory associé au thread (A1 et C)
 	// Avec le signal de transmission partagé avec A1
 	private Transmission canal;
-	private A1_Thread tFactory;
+	private A1_B1_Thread tFactory;
 	private Object signalTrameAEmettre;
 	private Object signalTrameRecue;
 
