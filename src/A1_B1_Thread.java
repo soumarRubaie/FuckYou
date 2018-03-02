@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 
 public class A1_B1_Thread extends Thread {
 	private String nomFichier;
-	private  boolean pretARecevoir;
+	private boolean pretARecevoir;
 	private Trame trameA1;
 	private Trame trameRecue;
 	private EmissionReception emissionReception;
@@ -25,13 +25,14 @@ public class A1_B1_Thread extends Thread {
 	public void setFileName(String nomFichier) {
 		this.nomFichier = nomFichier;
 	}
-	
+
 	public boolean isPretARecevoir() {
 		return pretARecevoir;
 	}
-	public void setTrameRecue (Trame t) {
-		trameRecue =t;
-		pretARecevoir= false;
+
+	public void setTrameRecue(Trame t) {
+		trameRecue = t;
+		pretARecevoir = false;
 	}
 
 	public Trame getTrameA1() {
@@ -76,15 +77,43 @@ public class A1_B1_Thread extends Thread {
 
 		// Crée un trame de M octets contenant l'information a transmettre et un numéro
 		// de trame
+		//	tant qu'il reste des données a lire on créé des trames de 4 octets
+//			on les envoit
+		int bytesRestant = bytes.length % 4;
+		int limite = bytes.length - bytesRestant - 1;
 
-		this.trameA1 = new Trame(bytes, M, idStation, destinataire);
-		while(!this.emissionReception.isPretAEmettre()) {
-			Thread.sleep(100);
+		for (int i=0; i<= limite; i=i+4)
+		{
+			byte[] temp = new byte []{bytes[i], bytes[i+1], bytes[i+2], bytes[i+3]};
+			this.trameA1 = new Trame(temp, M, idStation, destinataire);
+			while(!this.emissionReception.isPretAEmettre()) {
+				Thread.sleep(100);
+			}
+			if (this.emissionReception.isPretAEmettre()) {
+				this.emissionReception.setTrameAEmettre(trameA1);
+			}
 		}
-		if (this.emissionReception.isPretAEmettre()) {
-			this.emissionReception.setTrameAEmettre(trameA1);
+//		s`il reste des bits
+		if(bytesRestant != 0) {
+			byte [] temp;
+			for(int i = 0; i < 4; i++) {
+				if(bytesRestant > i) {
+					temp[i] = bytes[bytes.length-bytesRestant+i];
+				} else {
+					temp[i] = 0x00;
+				}
+			}
+			this.trameA1 = new Trame(temp, M, idStation, destinataire);
+			while(!this.emissionReception.isPretAEmettre()) {
+				Thread.sleep(100);
+			}
+			if (this.emissionReception.isPretAEmettre()) {
+				this.emissionReception.setTrameAEmettre(trameA1);
+			}
 		}
-
+		
+		
+		
 		while (true) {
 			if(!isPretARecevoir()) {
 //				TODO Trame.isACK
