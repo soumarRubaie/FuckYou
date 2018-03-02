@@ -6,7 +6,8 @@ public class EmissionReception implements Runnable {
 	private Trame trameRecu;
 	private byte[] byteAEmettre;
 	private byte[] byteARecevoir;
-	
+	//code de detection/correction zero ou 1
+	private int code;
 	// Le canal de transmission et la TrameFactory associé au thread (A1 et C)
 	// Avec le signal de transmission partagé avec A1
 	private Transmission canal;
@@ -49,6 +50,7 @@ public class EmissionReception implements Runnable {
 
 	private void traiterTrameAEmettre() {
 		// TODO Appliquer Hamming sur la trame
+		
 		// TODO byteAEmettre = trameAEmettre.toByte();
 		while(!tamponEmission.ajouterTrame(byteAEmettre)) {
 			try {
@@ -79,7 +81,7 @@ public class EmissionReception implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}	
+			}	 
 		}
 	}
 
@@ -91,8 +93,19 @@ public class EmissionReception implements Runnable {
 	private void traiterTrameRecu() {
 		// TODO : A1 : isPretARecevoir()
 		// TODO : Valider trame avec Hamming
-		// TODO : ByteToTrame()
-		// TODO : A1 : setTrameRecu()
+		boolean erreur = false;
+		if(code ==0)  {
+			if(HammingEncodeAndDecode.decodeDetection(byteARecevoir, byteARecevoir.length-1)) {
+				System.out.println("La trame a été rejeté ");
+				erreur = true;
+			}
+		} else  {
+			HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
+		}
+		if(!erreur) {
+			// TODO : ByteToTrame()
+			// TODO : A1 : setTrameRecu()
+		}
 		
 	}
 

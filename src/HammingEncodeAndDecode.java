@@ -95,7 +95,7 @@ public class HammingEncodeAndDecode {
 
 	
 	
-	public static byte[] decode(byte[] byteArray, int nbOctets) {
+	public static byte[] decodeCorrection(byte[] byteArray, int nbOctets) {
 		boolean bitArray[] = byteArray2BitArray(byteArray);
 		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
 		int tailleTotal = nbControl + nbOctets * 8;
@@ -124,9 +124,33 @@ public class HammingEncodeAndDecode {
 				cmpt++;
 			}
 		}
-
 		return bitArray2ByteArray(bitArrayRes);
 
+	}
+	
+	public static boolean decodeDetection(byte[] byteArray, int nbOctets) {
+		boolean bitArray[] = byteArray2BitArray(byteArray);
+		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
+		int tailleTotal = nbControl + nbOctets * 8;
+		int temp;
+		int errorPos = 0;
+		int j = 0;
+		boolean bitArrayRes[] = new boolean[nbOctets * 8];
+		for (int i = 0; i < tailleTotal; i++) {
+			temp = i + 1;
+			if (((temp & -temp) == temp)) {
+				if (verifyFunction(j, bitArray)) {
+					errorPos = errorPos + (1 << j);
+				}
+				j++;
+			}
+		}
+		if (errorPos != 0) {
+			System.out.println("Error detected in the bits position number " + errorPos);
+			return true;
+		} else {
+			return false;
+		}
 	}
 	 
 	
@@ -135,7 +159,6 @@ public class HammingEncodeAndDecode {
 	private static boolean verifyFunction(int i, boolean[] bitArray) {
 		boolean res = false;
 		for (int j = 0; j < bitArray.length; j++) {
-
 			if (((j + 1) & (1 << i)) != 0) {
 				res = res ^ bitArray[j];
 			}
@@ -145,3 +168,6 @@ public class HammingEncodeAndDecode {
 	}
 
 }
+
+
+
