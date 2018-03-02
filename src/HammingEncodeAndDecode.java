@@ -1,38 +1,38 @@
 // Source 
 // http://www.java2s.com/Code/Android/Date-Type/ConvertabytearraytoabooleanarrayBit0isrepresentedwithfalseBit1isrepresentedwith1.htm
 // http://www.java2s.com/Code/CSharp/File-Stream/BitArrayToByteArray.htm
-
+//http://pageperso.lif.univ-mrs.fr/~arnaud.labourel/FI/cours7.pdf
 public class HammingEncodeAndDecode {
 	
 	public static byte[] encode(byte[] Octets) {
 		
 		boolean bits[] = byteArray2BitArray(Octets);
 		int nbDonnees = bits.length;
-		int nbControl = (int) Math.floor(((Math.log(nbDonnees)) / Math.log(2)) + 1);
-		boolean bitsCodee[] = new boolean[nbDonnees + nbControl];
+		int bitDePartie = (int) Math.floor(((Math.log(nbDonnees)) / Math.log(2)) + 1);
+		boolean codedBits[] = new boolean[nbDonnees + bitDePartie];
 
 		int j = 0;
 		int temp;
-		for (int i = 0; i < bitsCodee.length; i++) {
+		for (int i = 0; i < codedBits.length; i++) {
 			temp = i + 1;
 			if (!((temp & -temp) == temp)) {
-				bitsCodee[i] = bits[j];
+				codedBits[i] = bits[j];
 				j++;
 			}
 		}
 
-		for (int i = 0; i < bitsCodee.length; i++) {
+		for (int i = 0; i < codedBits.length; i++) {
 			temp = i + 1;
 			if (((temp & -temp) == temp)) {
-				for (int k = 0; k < bitsCodee.length; k++) {
+				for (int k = 0; k < codedBits.length; k++) {
 					if (((k + 1) & temp) != 0) {
-						bitsCodee[i] = bitsCodee[i] ^ bitsCodee[k];
+						codedBits[i] = codedBits[i] ^ codedBits[k];
 					}
 				}
 			}
 		}
 		
-		return bitArray2ByteArray(bitsCodee);
+		return bitArray2ByteArray(codedBits);
 	}
 	
 
@@ -98,8 +98,8 @@ public class HammingEncodeAndDecode {
 	
 	public static byte[] decodeCorrection(byte[] byteArray, int nbOctets) {
 		boolean bitArray[] = byteArray2BitArray(byteArray);
-		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
-		int tailleTotal = nbControl + nbOctets * 8;
+		int bitDePartie = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
+		int tailleTotal = bitDePartie + nbOctets * 8;
 		int temp;
 		int errorPos = 0;
 		int j = 0;
@@ -114,7 +114,7 @@ public class HammingEncodeAndDecode {
 			}
 		}
 		if (errorPos != 0) {
-			System.out.println("Hamming: Error detected and fixed in the bits position number " + errorPos);
+			System.out.println("Hamming: Une erreur a été detectée et corrigée a la position: " + errorPos);
 			bitArray[errorPos - 1] = !bitArray[errorPos - 1];
 		}
 		int cmpt = 0;
@@ -131,8 +131,8 @@ public class HammingEncodeAndDecode {
 	
 	public static boolean decodeDetection(byte[] byteArray, int nbOctets) {
 		boolean bitArray[] = byteArray2BitArray(byteArray);
-		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
-		int tailleTotal = nbControl + nbOctets * 8;
+		int bitDePartie = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
+		int tailleTotal = bitDePartie + nbOctets * 8;
 		int temp;
 		int errorPos = 0;
 		int j = 0;
@@ -146,7 +146,7 @@ public class HammingEncodeAndDecode {
 			}
 		}
 		if (errorPos != 0) {
-			System.out.println("Hamming: Error detected in the bits position number " + errorPos);
+			System.out.println("Hamming: Une erreur a été detectée a la position: " + errorPos);
 			return true;
 		} else {
 			return false;
@@ -155,8 +155,8 @@ public class HammingEncodeAndDecode {
 	
 	public static byte[] decodeOnly(byte[] byteArray, int nbOctets) {
 		boolean bitArray[] = byteArray2BitArray(byteArray);
-		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
-		int tailleTotal = nbControl + nbOctets * 8;
+		int bitDePartie = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
+		int tailleTotal = bitDePartie + nbOctets * 8;
 		int temp;
 		int errorPos = 0;
 		int j = 0;
