@@ -4,7 +4,7 @@ public class EmissionReception implements Runnable {
 	private byte[] byteAEmettre;
 	private byte[] byteARecevoir;
 	//code de detection/correction zero ou 1
-	private int code;
+	private int code = 0;
 	// Le canal de transmission et la TrameFactory associé au thread (A1 et C)
 	// Avec le signal de transmission partagé avec A1
 	private Transmission canal;
@@ -82,9 +82,9 @@ public class EmissionReception implements Runnable {
 		if (t.dest == this.idStation) {
 			return true;
 		} else {
-//			System.out.println("["+ Thread.currentThread().getName() + "] La trame dans C n'est pas pour moi!");
-//			System.out.println("["+ Thread.currentThread().getName() + "] Mon id est le n°" + this.idStation);
-//			System.out.println("["+ Thread.currentThread().getName() + "] l'id du destinataire est le n°" + t.dest);
+			System.out.println("["+ Thread.currentThread().getName() + "] La trame dans C n'est pas pour moi!");
+			System.out.println("["+ Thread.currentThread().getName() + "] Mon id est le n°" + this.idStation);
+			System.out.println("["+ Thread.currentThread().getName() + "] l'id du destinataire est le n°" + t.dest);
 			return false;
 		}
 	}
@@ -95,7 +95,7 @@ public class EmissionReception implements Runnable {
 			byteARecevoir = tamponReception.getLastTrame();
 			tamponReception.freeLastTrame();
 			boolean erreur = false;
-			if(code ==0)  {
+			if(code == 0)  {
 				if(HammingEncodeAndDecode.decodeDetection(byteARecevoir, byteARecevoir.length-1)) {
 					System.out.println("La trame a été rejeté ");
 					erreur = true;
@@ -105,9 +105,12 @@ public class EmissionReception implements Runnable {
 			}
 			if(!erreur) {
 				byteARecevoir = HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
-				Trame.getByteToTrame(byteARecevoir);
-				a1_b1.setTrameRecue(Trame.getByteToTrame(byteARecevoir));
+				Trame t = Trame.getByteToTrame(byteARecevoir);
+				System.out.println("["+ Thread.currentThread().getName() + "] Je donne une trame à A1B1");
+				a1_b1.setTrameRecue(t);
 			}
+		} else {
+			System.out.println("["+ Thread.currentThread().getName() + "] A1B1 n'est pas prêt, je ne peux lui donner la trame");
 		}
 		
 	}
@@ -120,25 +123,25 @@ public class EmissionReception implements Runnable {
 			// Si j'ai une trame à traiter (envoi):
 			
 			if (!isPretAEmettre()) {
-				System.out.println("["+ Thread.currentThread().getName() + "] J'ai recu une trame de A1B1, je la traite");
+				//System.out.println("["+ Thread.currentThread().getName() + "] J'ai recu une trame de A1B1, je la traite");
 				traiterTrameAEmettre();
 			}
 			// Si le canal est dispo et que j'ai une trame à envoyer:
 			isPretEmission = canal.isPretEmission();
 			if (!tamponEmission.estVide() && isPretEmission) {
-				System.out.println("["+ Thread.currentThread().getName() + "] J'envoi une trame à C");
+				//System.out.println("["+ Thread.currentThread().getName() + "] J'envoi une trame à C");
 				envoyerTrame();
 			}
 
 			// Si il y a une donnée à receptionner sur le canal:
 			isDonneeRecu = canal.isDonneeRecu();
 			if (isDonneeRecu && !tamponReception.estPlein()) {
-				System.out.println("["+ Thread.currentThread().getName() + "] Il y a une trame à receptionner sur le canal C, je regarde...");
+				//System.out.println("["+ Thread.currentThread().getName() + "] Il y a une trame à receptionner sur le canal C, je regarde...");
 				recevoirTrame();
 			}
 			// Si on a une trame receptionnée à traiter:
 			if (!tamponReception.estVide()) {
-				System.out.println("["+ Thread.currentThread().getName() + "] J'ai reçu une trame de C, je la traite");
+				//System.out.println("["+ Thread.currentThread().getName() + "] J'ai reçu une trame de C, je la traite");
 				traiterTrameRecu();
 			}
 			try {

@@ -21,7 +21,7 @@ public class Trame {
 	    this.exp=exp; 
 	    this.dest=dest; 
 	    this.tailleTrame= Integer.BYTES* 4 + donnes.length; 
-	    this.typeTrame= 0; 
+	    this.typeTrame = typeTrame; 
 	}
 	
 	public Integer getNumTrame(){
@@ -97,7 +97,8 @@ public class Trame {
 
 	public void display() {
 		System.out.print("[TRAME]\nNuméro trame: " + numeroTrame + "\nTaille trame: "
-				+ tailleTrame + "\nExpéditeur: " + exp + "\nDestinataire:" + dest + "\nContenu: [");
+				+ tailleTrame + "\nExpéditeur: " + exp + "\nDestinataire:" + dest 
+				+ "\nType de Trame: " + typeTrame +  "\nContenu: [");
 		for(byte octet : donnes) {
 			System.out.print(octet + " ");
 		}

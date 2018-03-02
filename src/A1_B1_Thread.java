@@ -47,6 +47,45 @@ public class A1_B1_Thread extends Thread {
 	public void setEmissionReception(EmissionReception emissionReception) {
 		this.emissionReception = emissionReception;
 	}
+	
+	public void recevoirTrame() {
+		if (!isPretARecevoir()) {
+			if (!trameRecue.isACK()) {
+				trameRecue.display();
+				// Ecriture dans le fichier
+					try {
+						PrintWriter writer = new PrintWriter(new FileOutputStream(new File("output.txt"), true));
+					for (byte x : trameRecue.getDonnes()) {
+						writer.print((char) x);
+					}
+					writer.close();
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				// Création et envoi de la trame ACK
+				
+				Trame trameACK = new Trame(new byte[] {0,0,0,0}, idStation, destinataire, 1);
+				a2PretAEmettre = emissionReception.isPretAEmettre();
+				while (!a2PretAEmettre) {
+					try {
+						Thread.sleep(100);
+						a2PretAEmettre = emissionReception.isPretAEmettre();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				if (a2PretAEmettre) {
+					System.out.println("["+ Thread.currentThread().getName() + "] J'envoie une trame ACK à B2");
+					this.emissionReception.setTrameAEmettre(trameACK);
+					pretARecevoir = true;
+				}
+			} else {
+				pretARecevoir = true;
+			}
+		}
+	}
 
 	public void run() {
 
@@ -95,24 +134,28 @@ public class A1_B1_Thread extends Thread {
 					try {
 						Thread.sleep(100);
 						a2PretAEmettre = emissionReception.isPretAEmettre();
+						recevoirTrame();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
-				a2PretAEmettre = emissionReception.isPretAEmettre();
 				if (a2PretAEmettre) {
 					System.out.println("[A1] Trame " + i/4 + " transmise à A2");
 					this.emissionReception.setTrameAEmettre(trameA1);
 				}
+				recevoirTrame();
 			}
 			// S'il reste des octets:
 			if (bytesRestant != 0) {
 				byte[] temp = new byte[4];
 				for (int i = 0; i < 4; i++) {
-					if (bytesRestant > i) {
-						temp[i] = bytes[bytes.length - bytesRestant + i];
-					} else {
+					if (i < bytesRestant) {
 						temp[i] = 0x00;
+					} else {
+						System.out.println("["+ Thread.currentThread().getName() + "]: " + bytes.length);
+						System.out.println("["+ Thread.currentThread().getName() + "]: " + bytesRestant);
+						System.out.println("["+ Thread.currentThread().getName() + "]: " + i);
+						temp[i] = bytes[limite + i - 4];
 					}
 				}
 				this.trameA1 = new Trame(temp, idStation, destinataire, 0);
@@ -146,44 +189,9 @@ public class A1_B1_Thread extends Thread {
 		}
 		
 		while (true) {
-			if (!isPretARecevoir()) {
-				
-				if (!trameRecue.isACK()) {
-					// Ecriture dans le fichier
-						try {
-							writer = new PrintWriter(new FileOutputStream(new File("output.txt"), true));
-						
-						for (byte x : trameRecue.getDonnes()) {
-							writer.print((char) x);
-						}
-						writer.close();
-						} catch (FileNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-
-					// Création et envoi de la trame ACK
-					
-					Trame trameACK = new Trame(new byte[] {0,0,0,0}, idStation, destinataire, 1);
-					a2PretAEmettre = emissionReception.isPretAEmettre();
-					while (!a2PretAEmettre) {
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					if (a2PretAEmettre) {
-						System.out.println("["+ Thread.currentThread().getName() + "] J'envoie une trame ACK à B2");
-						this.emissionReception.setTrameAEmettre(trameACK);
-						pretARecevoir = true;
-					}
-				} else {
-					pretARecevoir = true;
-				}
-			}
+			recevoirTrame();
 			try {
-				Thread.sleep(20);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
