@@ -6,23 +6,26 @@ public class Trame {
 	
 	private byte[] donnes;
 	
-	private int tailleTrame;
+	private Integer tailleTrame;
 	// Le numéro de la trame sera généré automatiquement
-	private static int counter = 1; 
-	public final int numeroTrame;  
+	private static Integer counter = 1; 
+	public final Integer numeroTrame;  
 	
-	public int exp; 
-	public int dest; 
+	public Integer exp; 
+	public Integer dest; 
 	
-	public int typeTrame; 
+	public Integer typeTrame; 
 	
-	public Trame(byte[] donnes, int tailleTrame, int exp, int dest){
+	public Trame(byte[] donnes, Integer exp, Integer dest){
 	    this.donnes=donnes; 
-	    this.tailleTrame= tailleTrame; 
 	    this.numeroTrame = counter++; 
+	    this.exp=exp; 
+	    this.dest=dest; 
+	    this.tailleTrame= Integer.BYTES* 4 + donnes.length; 
+	    this.typeTrame= 0; 
 	}
 	
-	public int getNumTrame(){
+	public Integer getNumTrame(){
 	    return this.numeroTrame; 
 	}
 	
@@ -30,19 +33,21 @@ public class Trame {
 		return donnes;
 	}
 	
+	public boolean isACK(){
+	    if (this.typeTrame==1)
+	        return true;  
+	    else
+	        return false; 
+	}
+	
 	public byte[] getTrameToByte(){
 	    
-	    Integer numeTrame = new Integer(numeroTrame);  
-	    Integer expe = new Integer(exp);  
-	    Integer desti = new Integer(dest);  
-        Integer type= new Integer(typeTrame);  
-	     
         ByteBuffer a = ByteBuffer.allocate(Integer.BYTES* 4 + donnes.length ); 
         
-        a.putInt(numeTrame); 
-        a.putInt(expe);
-        a.putInt(desti);
-        a.putInt(type);
+        a.putInt(numeroTrame); 
+        a.putInt(exp);
+        a.putInt(dest);
+        a.putInt(typeTrame);
         
         a.put(donnes); 
         
@@ -52,25 +57,25 @@ public class Trame {
 	
 	public Trame getByteToTrame(byte[] byteArray){
 	    
-	    Integer numeTrame = new Integer(numeroTrame);  
-        Integer expe = new Integer(exp);  
-        Integer desti = new Integer(dest);  
-        Integer type= new Integer(typeTrame);  
-	    
-	    ByteBuffer a = ByteBuffer.allocate(byteArray.length); 
-	    
-        a.wrap(byteArray);
+	    Integer numeTrame ;
+        Integer expe;
+        Integer desti ;
+        Integer type;  
+	 
+        ByteBuffer wrapped = ByteBuffer.wrap(byteArray);
         
-        numeTrame= a.getInt(); 
-        expe= a.getInt();
-        desti=a.getInt();
-        type=a.getInt();
+        numeTrame = wrapped.getInt(); 
         
-        byte[] arr = new byte[a.remaining()]; 
+        expe = wrapped.getInt(); 
         
-        a.get(arr,a.getInt()*4,arr.length); 
+        desti = wrapped.getInt(); 
         
-        Trame trame = new Trame(arr,exp,dest,byteArray.length);  
+        type = wrapped.getInt(); 
+        
+        // 16 est 4 entiers
+        byte[] b = Arrays.copyOfRange(byteArray,16,byteArray.length);  
+        
+        Trame trame = new Trame(b,expe,desti);    
         
         return trame ; 
 	}
