@@ -1,8 +1,4 @@
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Main
@@ -11,77 +7,63 @@ public class Main
     public static void main(String[] args) throws FileNotFoundException
     {       
         
-        Scanner sc= new Scanner(System.in); 
-     
-        // LLC émetteur
-        A1_Thread A1=  new A1_Thread();  
+//        Scanner sc= new Scanner(System.in); 
+//     
+//
+//        System.out.println("Taille du tampon: "); 
+//        // Lire la taille du tampon 
+//        int tailleTampon = sc.nextInt(); 
+//        
+//        System.out.println("Délai de temporisation: ");
+//        // Lire le délai de temporisation 
+//        int timeOut = sc.nextInt(); 
+//        
+//        System.out.println("Nom du fichier: ");
+//        // Lire le nom du fichier a copier 
+//        String nomFichier = sc.next(); 
+//        
+//        // Lire l'emplacement de destination 
+//        System.out.println("La destination: ");
+//        String destination = sc.next();       
+//        sc.close();
+        int tailleTampon = 10;
+        int timeOut = 10;
+    	
+//        Trame trameACK = new Trame(new byte[] {0,0,0,0}, 1, 2, 1);
+//        trameACK.display();
+//        byte[] test = trameACK.getTrameToByte();
+//        Trame trameTest = Trame.getByteToTrame(test);
+//        trameTest.display();
+//        
+
         
-        // MAC émetteur 
-        A2_Thread A2 = new A2_Thread();   
-        
-        /*
-        // LLC récépteur
-        TestThread B1 = new TestThread("B1"); 
-        
-        //MAC récépteur 
-        TestThread B2 = new TestThread("B2"); 
-        
-        // Support de transmission 
-        TestThread C = new TestThread("C"); 
-        */  
-        
-        System.out.println("Taille du tampon: "); 
-        // Lire la taille du tampon 
-        int tailleTampon = sc.nextInt(); 
-        
-        System.out.println("Délai de temporisation: ");
-        // Lire le délai de temporisation 
-        int timeOut = sc.nextInt(); 
-        
-        System.out.println("Nom du fichier: ");
-        // Lire le nom du fichier a copier 
-        String nomFichier = sc.next(); 
-        
-        // Lire l'emplacement de destination 
-        System.out.println("La destination: ");
-        String destination = sc.next();       
-        
-        File file = new File("ressources/emission/"+nomFichier); 
-        
-        FileInputStream fis = new FileInputStream(file); 
-        
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
-        byte[] buf = new byte[1024]; 
-        
-        // Initialiser la taille de la trame au niveau de « A1 »
-        int M=0;
-        
-        // Lire le fichier octet par octet et me
-        try{
-            for (int i;(i=fis.read(buf)) !=-1;){
-                bos.write(buf,0,i);  
-                M++; 
-            }
-        }
-        catch (IOException ex) {
-            System.out.println("erreur lors de la copie");
-        }
-        
-        // mettre les données dans un tableau d'octet
-        
-        byte[] bytes = bos.toByteArray(); 
-     
-        // Crée un trame de M octets contenant l'information a transmettre et un numéro 
-        // de trame
-        
-        Trame trameA1 = new Trame(bytes,M); 
+    
+        EmissionReception A2 = new EmissionReception(tailleTampon, 1);
+        EmissionReception B2 = new EmissionReception(tailleTampon, 2);
+        A1_B1_Thread A1 = new A1_B1_Thread(1, A2, 2, true);
+        A1_B1_Thread B1 = new A1_B1_Thread(2, B2, 1, false);
+        A1.setFileName("input.txt");
         
         
-        A1.start();
+        Transmission C = new Transmission();
+        C.setTempsLatence(timeOut);
         
+        A2.setA1_B1(A1);
+        A2.setCanal(C);
+        B2.setA1_B1(B1);
+        B2.setCanal(C);
         
-        A2.start();
+        Thread A1_Thread = new Thread(A1,"A1");
+        Thread A2_Thread = new Thread(A2,"A2");
+        Thread B1_Thread = new Thread(B1,"B1");
+        Thread B2_Thread = new Thread(B2,"B2");
+        Thread C1_Thread = new Thread(C,"C");
         
+        A1_Thread.start();
+        A2_Thread.start();
+        B1_Thread.start();
+        B2_Thread.start();
+        C1_Thread.start();
     }
     
 }

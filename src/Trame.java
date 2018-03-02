@@ -1,5 +1,4 @@
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Arrays;
 
 public class Trame {
@@ -9,14 +8,14 @@ public class Trame {
 	private Integer tailleTrame;
 	// Le numéro de la trame sera généré automatiquement
 	private static Integer counter = 1; 
-	public final Integer numeroTrame;  
+	public Integer numeroTrame;  
 	
 	public Integer exp; 
 	public Integer dest; 
 	
 	public Integer typeTrame; 
 	
-	public Trame(byte[] donnes, Integer exp, Integer dest){
+	public Trame(byte[] donnes, int exp, int dest, int typeTrame){
 	    this.donnes=donnes; 
 	    this.numeroTrame = counter++; 
 	    this.exp=exp; 
@@ -27,6 +26,10 @@ public class Trame {
 	
 	public Integer getNumTrame(){
 	    return this.numeroTrame; 
+	}
+	
+	public void setNumTrame(Integer num){
+	    numeroTrame = num;
 	}
 	
 	public byte[] getDonnes(){
@@ -55,7 +58,7 @@ public class Trame {
 	    
 	}
 	
-	public Trame getByteToTrame(byte[] byteArray){
+	public static Trame getByteToTrame(byte[] byteArray){
 	    
 	    Integer numeTrame ;
         Integer expe;
@@ -75,8 +78,8 @@ public class Trame {
         // 16 est 4 entiers
         byte[] b = Arrays.copyOfRange(byteArray,16,byteArray.length);  
         
-        Trame trame = new Trame(b,expe,desti);    
-        
+        Trame trame = new Trame(b, expe, desti, type);    
+        trame.setNumTrame(numeTrame);
         return trame ; 
 	}
 	
@@ -94,7 +97,7 @@ public class Trame {
 
 	public void display() {
 		System.out.print("[TRAME]\nNuméro trame: " + numeroTrame + "\nTaille trame: "
-				+ tailleTrame + "\nContenu: [");
+				+ tailleTrame + "\nExpéditeur: " + exp + "\nDestinataire:" + dest + "\nContenu: [");
 		for(byte octet : donnes) {
 			System.out.print(octet + " ");
 		}

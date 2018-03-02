@@ -9,6 +9,9 @@ public class Tampon {
 		this.taille = taille;
 		tampon = new byte[taille][];
 		isFree = new boolean[taille];
+		for(int i = 0; i < isFree.length; i++) {
+			isFree[i] = true;
+		}
 	}
 
 	public boolean ajouterTrame(byte[] trame) {
@@ -27,6 +30,15 @@ public class Tampon {
 	public boolean estVide() {
 		for(boolean free : isFree) {
 			if (!free) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean estPlein() {
+		for(boolean free : isFree) {
+			if (free) {
 				return false;
 			}
 		}

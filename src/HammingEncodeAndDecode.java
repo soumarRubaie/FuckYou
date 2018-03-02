@@ -33,8 +33,7 @@ public class HammingEncodeAndDecode {
 		return bitArray2ByteArray(bitsCodee);
 	}
 	
-//	TODO 
-//	byteToBit function 
+
 	public static boolean[] byteArray2BitArray(byte[] bytes) {
 		boolean[] bits = new boolean[bytes.length * 8];
 		for (int i = 0; i < bytes.length * 8; i++) {
@@ -135,7 +134,6 @@ public class HammingEncodeAndDecode {
 		int temp;
 		int errorPos = 0;
 		int j = 0;
-		boolean bitArrayRes[] = new boolean[nbOctets * 8];
 		for (int i = 0; i < tailleTotal; i++) {
 			temp = i + 1;
 			if (((temp & -temp) == temp)) {
@@ -152,10 +150,39 @@ public class HammingEncodeAndDecode {
 			return false;
 		}
 	}
-	 
 	
-//	TODO
-//	fonction de verification 
+	public static byte[] decodeOnly(byte[] byteArray, int nbOctets) {
+		boolean bitArray[] = byteArray2BitArray(byteArray);
+		int nbControl = (int) Math.floor(((Math.log(nbOctets * 8)) / Math.log(2)) + 1);
+		int tailleTotal = nbControl + nbOctets * 8;
+		int temp;
+		int errorPos = 0;
+		int j = 0;
+		boolean bitArrayRes[] = new boolean[nbOctets * 8];
+		for (int i = 0; i < tailleTotal; i++) {
+			temp = i + 1;
+			if (((temp & -temp) == temp)) {
+				if (verifyFunction(j, bitArray)) {
+					errorPos = errorPos + (1 << j);
+				}
+				j++;
+			}
+		}
+		if (errorPos != 0) {
+			bitArray[errorPos - 1] = !bitArray[errorPos - 1];
+		}
+		int cmpt = 0;
+		for (int i = 0; i < tailleTotal; i++) {
+			temp = i + 1;
+			if (!((temp & -temp) == temp)) {
+				bitArrayRes[cmpt] = bitArray[i];
+				cmpt++;
+			}
+		}
+		return bitArray2ByteArray(bitArrayRes);
+
+	}
+	 
 	private static boolean verifyFunction(int i, boolean[] bitArray) {
 		boolean res = false;
 		for (int j = 0; j < bitArray.length; j++) {

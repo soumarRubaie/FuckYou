@@ -1,9 +1,6 @@
-import java.util.ArrayList;
-
 public class EmissionReception implements Runnable {
-	public int id = 0; // Id pour reconnaitre la station
+	private int idStation;
 	private Trame trameAEmettre;
-	private Trame trameRecu;
 	private byte[] byteAEmettre;
 	private byte[] byteARecevoir;
 	//code de detection/correction zero ou 1
@@ -11,9 +8,7 @@ public class EmissionReception implements Runnable {
 	// Le canal de transmission et la TrameFactory associé au thread (A1 et C)
 	// Avec le signal de transmission partagé avec A1
 	private Transmission canal;
-	private A1_B1_Thread tFactory;
-	private Object signalTrameAEmettre;
-	private Object signalTrameRecue;
+	private A1_B1_Thread a1_b1;
 
 	// Tampons:
 	private Tampon tamponEmission;
@@ -23,9 +18,18 @@ public class EmissionReception implements Runnable {
 	private boolean pretAEmettre = true;
 	private boolean pretARecevoir = true;
 
-	EmissionReception(int tailleTampons){
+	EmissionReception(int tailleTampons, int idStation){
 		tamponEmission = new Tampon(tailleTampons);
 		tamponReception = new Tampon(tailleTampons);
+		this.idStation = idStation;
+	}
+	
+	public void setCanal(Transmission canal) {
+		this.canal = canal;
+	}
+
+	public void setA1_B1(A1_B1_Thread a1_B1) {
+		a1_b1 = a1_B1;
 	}
 	
 	public boolean isPretAEmettre() {
@@ -38,29 +42,21 @@ public class EmissionReception implements Runnable {
 
 	// Action possible des autres threads:
 	public void setTrameAEmettre(Trame t) {
-		synchronized (signalTrameAEmettre) {
-			if (isPretAEmettre()) {
-				trameAEmettre = t;
-				pretAEmettre = false;
-			}
+		if (isPretAEmettre()) {
+			trameAEmettre = t;
+			pretAEmettre = false;
 		}
 	}
 
 	// Actions du thread:
 
 	private void traiterTrameAEmettre() {
-		// TODO Appliquer Hamming sur la trame
+		byteAEmettre = trameAEmettre.getTrameToByte();
+		byteAEmettre = HammingEncodeAndDecode.code(byteAEmettre);
 		
-		// TODO byteAEmettre = trameAEmettre.toByte();
-		while(!tamponEmission.ajouterTrame(byteAEmettre)) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		};
-		pretAEmettre = true;
+		if(tamponEmission.ajouterTrame(byteAEmettre)) {
+			pretAEmettre = true;
+		}
 	}
 
 	private void envoyerTrame() {
@@ -73,63 +69,83 @@ public class EmissionReception implements Runnable {
 	private void recevoirTrame() {
 		// Si la trame est pour cette station: la prendre
 		if (isTramePourMoi(canal.getTrameEmise())) {
-			byteARecevoir = canal.takeTrameEmise();
-			while(!tamponReception.ajouterTrame(byteARecevoir)) {
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			byteARecevoir = canal.getTrameEmise();
+			if(tamponReception.ajouterTrame(byteARecevoir)) {
+				byteARecevoir = canal.takeTrameEmise();
 			}	 
 		}
 	}
 
-	private boolean isTramePourMoi(Trame t) {
-		// TODO fonction isTramePourMoi
-		return true;
+	private boolean isTramePourMoi(byte[] tbytes) {
+		tbytes = HammingEncodeAndDecode.decodeOnly(tbytes, tbytes.length-1);
+		Trame t = Trame.getByteToTrame(tbytes);
+		if (t.dest == this.idStation) {
+			return true;
+		} else {
+//			System.out.println("["+ Thread.currentThread().getName() + "] La trame dans C n'est pas pour moi!");
+//			System.out.println("["+ Thread.currentThread().getName() + "] Mon id est le n°" + this.idStation);
+//			System.out.println("["+ Thread.currentThread().getName() + "] l'id du destinataire est le n°" + t.dest);
+			return false;
+		}
 	}
 
 	private void traiterTrameRecu() {
-		// TODO : A1 : isPretARecevoir()
-		// TODO : Valider trame avec Hamming
-		boolean erreur = false;
-		if(code ==0)  {
-			if(HammingEncodeAndDecode.decodeDetection(byteARecevoir, byteARecevoir.length-1)) {
-				System.out.println("La trame a été rejeté ");
-				erreur = true;
+		boolean a1b1Pret = a1_b1.isPretARecevoir();
+		if(a1b1Pret){
+			byteARecevoir = tamponReception.getLastTrame();
+			tamponReception.freeLastTrame();
+			boolean erreur = false;
+			if(code ==0)  {
+				if(HammingEncodeAndDecode.decodeDetection(byteARecevoir, byteARecevoir.length-1)) {
+					System.out.println("La trame a été rejeté ");
+					erreur = true;
+				}
+			} else {
+				HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
 			}
-		} else  {
-			HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
-		}
-		if(!erreur) {
-			// TODO : ByteToTrame()
-			// TODO : A1 : setTrameRecu()
+			if(!erreur) {
+				byteARecevoir = HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
+				Trame.getByteToTrame(byteARecevoir);
+				a1_b1.setTrameRecue(Trame.getByteToTrame(byteARecevoir));
+			}
 		}
 		
 	}
 
 	@Override
 	public void run() {
+		boolean isDonneeRecu;
+		boolean isPretEmission;
 		while (true) {
 			// Si j'ai une trame à traiter (envoi):
-			// TODO : fonction tampon emission full?
+			
 			if (!isPretAEmettre()) {
+				System.out.println("["+ Thread.currentThread().getName() + "] J'ai recu une trame de A1B1, je la traite");
 				traiterTrameAEmettre();
 			}
 			// Si le canal est dispo et que j'ai une trame à envoyer:
-			if (!tamponEmission.estVide() && canal.isPretEmission()) {
+			isPretEmission = canal.isPretEmission();
+			if (!tamponEmission.estVide() && isPretEmission) {
+				System.out.println("["+ Thread.currentThread().getName() + "] J'envoi une trame à C");
 				envoyerTrame();
 			}
 
-			// Si il y a une donnée à receptionner sur le canal
-			// TODO : fonction tampon reception full?
-			if (canal.isDonneeRecu()) {
+			// Si il y a une donnée à receptionner sur le canal:
+			isDonneeRecu = canal.isDonneeRecu();
+			if (isDonneeRecu && !tamponReception.estPlein()) {
+				System.out.println("["+ Thread.currentThread().getName() + "] Il y a une trame à receptionner sur le canal C, je regarde...");
 				recevoirTrame();
 			}
 			// Si on a une trame receptionnée à traiter:
 			if (!tamponReception.estVide()) {
+				System.out.println("["+ Thread.currentThread().getName() + "] J'ai reçu une trame de C, je la traite");
 				traiterTrameRecu();
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

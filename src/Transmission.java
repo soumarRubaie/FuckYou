@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Transmission implements Runnable {
@@ -7,14 +6,15 @@ public class Transmission implements Runnable {
 
 	// Donné par les paramètres d'entrée
 	private int tempsLatence = 0;
-	private int typeErreur = 1;
+	private int typeErreur = 0;
 
 	//
 	private boolean statutEmission = true;
 	private boolean statutReception = false;
 	private byte[] trameEmise;
 	private byte[] trameRecu;
-	private Object signal = new Object();
+	private Object signalEmission = new Object();
+	private Object signalReception = new Object();
 	
 	
 	public void setTypeErreur(int e) {
@@ -34,11 +34,10 @@ public class Transmission implements Runnable {
 	}
 
 	public boolean setTrameEmise(byte[] t) {
-		synchronized(signal) {
+		synchronized(signalEmission) {
 			if (isPretEmission()) {
 				trameEmise = t;
 				statutEmission = false;
-				signal.notify();
 				return true;
 			}
 			//retourne faux si on a pas réussi à mettre la trame (concurrence)
@@ -48,15 +47,15 @@ public class Transmission implements Runnable {
 
 	// Permet de récupérer les infos de la trame reçu
 	public byte[] getTrameEmise(){
-		synchronized(signal) {
+		synchronized(signalReception) {
 			return trameRecu;
 		}
 	}
 	// Permet de notifier le support que la trame était pour nous et qu'on l'a prise
 	public byte[] takeTrameEmise() {
-		synchronized(signal) {
+		synchronized(signalReception) {
+			System.out.println("[CANAL] Quelqu'un prend la trame!");
 			statutReception = false;
-			signal.notify();
 			return trameRecu;
 		}
 	}
@@ -82,10 +81,9 @@ public class Transmission implements Runnable {
 	private void transmettreTrame() {
 		simulerLatence();
 		trameRecu = trameEmise;
-		synchronized(signal) {
+		synchronized(signalEmission) {
 			statutReception = true;
 			statutEmission = true;
-			signal.notify();
 		}
 	}
 
@@ -93,14 +91,10 @@ public class Transmission implements Runnable {
 	public void run(){
 		while (true) {
 			while(isDonneeRecu() || isPretEmission()) {
-				synchronized(signal) {
-					try {
-						System.out.println("[CANAL]\nEn attente d'un déblocage :\nEmission: "+ isPretEmission()
-						+ "\nReception: " + isDonneeRecu() +"\n");
-						signal.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 			System.out.println("[CANAL]\nJe transmet une trame!");
