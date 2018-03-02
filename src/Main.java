@@ -7,27 +7,27 @@ public class Main
     public static void main(String[] args) throws FileNotFoundException
     {       
         
-//        Scanner sc= new Scanner(System.in); 
-//     
-//
-//        System.out.println("Taille du tampon: "); 
+        Scanner sc= new Scanner(System.in); 
+     
+
+        System.out.println("Entrer une Taille du tampon: "); 
 //        // Lire la taille du tampon 
-//        int tailleTampon = sc.nextInt(); 
-//        
-//        System.out.println("Délai de temporisation: ");
+        int tailleTampon = sc.nextInt(); 
+        
+        System.out.println("Entrer un délai de temporisation: ");
 //        // Lire le délai de temporisation 
-//        int timeOut = sc.nextInt(); 
+        int timeOut = sc.nextInt(); 
 //        
-//        System.out.println("Nom du fichier: ");
+        System.out.println("Entrer un Nom du fichier: ");
 //        // Lire le nom du fichier a copier 
-//        String nomFichier = sc.next(); 
+        String nomFichier = sc.next(); 
 //        
 //        // Lire l'emplacement de destination 
 //        System.out.println("La destination: ");
 //        String destination = sc.next();       
 //        sc.close();
-        int tailleTampon = 10;
-        int timeOut = 10;
+//        int tailleTampon = 10;
+//        int timeOut = 10;
     	
 //        Trame trameACK = new Trame(new byte[] {0,0,0,0}, 1, 2, 1);
 //        trameACK.display();
