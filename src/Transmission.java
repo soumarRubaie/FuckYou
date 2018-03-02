@@ -61,7 +61,7 @@ public class Transmission implements Runnable {
 	// Permet de notifier le support que la trame était pour nous et qu'on l'a prise
 	public byte[] takeTrameEmise() {
 		l.lock();
-		System.out.println("[CANAL] Quelqu'un prend la trame!");
+		//System.out.println("[CANAL] Quelqu'un prend la trame!");
 		statutReception = false;
 		l.unlock();
 		return trameRecu;
@@ -111,7 +111,7 @@ public class Transmission implements Runnable {
 					//System.out.println("[CANAL] Trame recu: " + statutEmission + "\nStatutReception: " + statutReception);
 				}
 			}
-			System.out.println("[CANAL] Je transmet une trame!");
+			//System.out.println("[CANAL] Je transmet une trame!");
 			// Application des erreurs
 			Random rand = new Random();
 			int randErreur = rand.nextInt(100);
@@ -134,7 +134,7 @@ public class Transmission implements Runnable {
 			} else {
 				transmettreTrame();
 			}
-			System.out.println("[CANAL] Trame transmise!");
+			//	System.out.println("[CANAL] Trame transmise!");
 		}
 	}
 }

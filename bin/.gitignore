@@ -1,10 +1,7 @@
-/A1_Thread.class
+/A1_B1_Thread.class
 /EmissionReception.class
-/Hamming.class
-/HammingMethodes.class
+/HammingEncodeAndDecode.class
 /Main.class
-/TestThread.class
+/Tampon.class
 /Trame.class
-/TrameFactory.class
 /Transmission.class
-/A2_Thread.class

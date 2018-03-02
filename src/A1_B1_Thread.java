@@ -127,7 +127,7 @@ public class A1_B1_Thread extends Thread {
 			}
 
 			// mettre les données dans un tableau d'octet
-			System.out.println("[A1] Fichier lu et dans un tableau de Byte");
+			//System.out.println("[A1] Fichier lu et dans un tableau de Byte");
 			byte[] bytes = bos.toByteArray();
 
 			// tant qu'il reste des données a lire

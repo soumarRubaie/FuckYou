@@ -55,7 +55,7 @@ public class EmissionReception implements Runnable {
 		byteAEmettre = HammingEncodeAndDecode.code(byteAEmettre);
 		
 		if(tamponEmission.ajouterTrame(byteAEmettre)) {
-			System.out.println("["+ Thread.currentThread().getName() + "] Trame de A1B1 mise dans mon tampon");
+//			System.out.println("["+ Thread.currentThread().getName() + "] Trame de A1B1 mise dans mon tampon");
 			pretAEmettre = true;
 		}
 	}
@@ -84,9 +84,9 @@ public class EmissionReception implements Runnable {
 		if (t.dest == this.idStation) {
 			return true;
 		} else {
-			System.out.println("["+ Thread.currentThread().getName() + "] La trame dans C n'est pas pour moi!");
-			System.out.println("["+ Thread.currentThread().getName() + "] Mon id est le n°" + this.idStation);
-			System.out.println("["+ Thread.currentThread().getName() + "] l'id du destinataire est le n°" + t.dest);
+			//System.out.println("["+ Thread.currentThread().getName() + "] La trame dans C n'est pas pour moi!");
+			//System.out.println("["+ Thread.currentThread().getName() + "] Mon id est le n°" + this.idStation);
+			//System.out.println("["+ Thread.currentThread().getName() + "] l'id du destinataire est le n°" + t.dest);
 			return false;
 		}
 	}
@@ -108,7 +108,7 @@ public class EmissionReception implements Runnable {
 			if(!erreur) {
 				byteARecevoir = HammingEncodeAndDecode.decodeCorrection(byteARecevoir, byteARecevoir.length-1);
 				Trame t = Trame.getByteToTrame(byteARecevoir);
-				System.out.println("["+ Thread.currentThread().getName() + "] Je donne une trame à A1B1");
+		//		System.out.println("["+ Thread.currentThread().getName() + "] Je donne une trame à A1B1");
 				a1_b1.setTrameRecue(t);
 			}
 		} else {

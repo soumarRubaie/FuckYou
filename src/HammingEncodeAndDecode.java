@@ -1,5 +1,7 @@
-//http://www.java2s.com/Code/Android/Date-Type/ConvertabytearraytoabooleanarrayBit0isrepresentedwithfalseBit1isrepresentedwith1.htm
-//http://www.java2s.com/Code/CSharp/File-Stream/BitArrayToByteArray.htm
+// Source 
+// http://www.java2s.com/Code/Android/Date-Type/ConvertabytearraytoabooleanarrayBit0isrepresentedwithfalseBit1isrepresentedwith1.htm
+// http://www.java2s.com/Code/CSharp/File-Stream/BitArrayToByteArray.htm
+
 public class HammingEncodeAndDecode {
 	
 	public static byte[] code(byte[] Octets) {
@@ -112,7 +114,7 @@ public class HammingEncodeAndDecode {
 			}
 		}
 		if (errorPos != 0) {
-			System.out.println("Error detected and fixed in the bits position number " + errorPos);
+			System.out.println("Hamming: Error detected and fixed in the bits position number " + errorPos);
 			bitArray[errorPos - 1] = !bitArray[errorPos - 1];
 		}
 		int cmpt = 0;
@@ -144,7 +146,7 @@ public class HammingEncodeAndDecode {
 			}
 		}
 		if (errorPos != 0) {
-			System.out.println("Error detected in the bits position number " + errorPos);
+			System.out.println("Hamming: Error detected in the bits position number " + errorPos);
 			return true;
 		} else {
 			return false;
