@@ -1,0 +1,6 @@
+10
+10
+C:\Users\rabs1703\Desktop\tp1-télém\FuckYou\ressources\emission\input.txt
+C:\Users\rabs1703\Desktop\tp1-télém\FuckYou\ressources\reception\output.txt
+100
+0
