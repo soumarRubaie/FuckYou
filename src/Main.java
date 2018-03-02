@@ -30,7 +30,7 @@ public class Main
         int tauxErreur = sc.nextInt(); 
         
 //      // Lire le type d'erreur
-        System.out.println("Entrer un le type d'erreur: \n \t INDICATIONS : \n 0  pour pas d'erreur \n 1 pour Corruption \n 2 pour Perte d'une trame  ");
+        System.out.println("Entrer un le type d'erreur: \n INDICATIONS : \n 0  pour pas d'erreur \n 1 pour Corruption \n 2 pour Perte d'une trame  ");
         int typeErreur = sc.nextInt(); 
         
 //        sc.close();

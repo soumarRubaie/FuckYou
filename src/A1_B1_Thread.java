@@ -57,7 +57,7 @@ public class A1_B1_Thread extends Thread {
 			if (!trameRecue.isACK()) {
 				// Ecriture dans le fichier
 					try {
-						PrintWriter writer = new PrintWriter(new FileOutputStream(new File("ressources/reception/" + nomFichierDestination), true));
+						PrintWriter writer = new PrintWriter(new FileOutputStream(new File(nomFichierDestination), true));
 					for (byte x : trameRecue.getDonnes()) {
 						writer.print((char) x);
 					}
@@ -100,7 +100,7 @@ public class A1_B1_Thread extends Thread {
 	public void run() {
 
 		if (read) {
-			File file = new File("ressources/emission/" + nomFichier);
+			File file = new File(nomFichier);
 
 			FileInputStream fis = null;
 			try {
@@ -188,7 +188,7 @@ public class A1_B1_Thread extends Thread {
 		PrintWriter writer;
 		if(!read) {
 			try {
-				writer = new PrintWriter("ressources/reception/" + nomFichierDestination, "utf-8");
+				writer = new PrintWriter( nomFichierDestination, "utf-8");
 				writer.print("");
 				writer.close();
 			} catch (FileNotFoundException | UnsupportedEncodingException e2) {
