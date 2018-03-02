@@ -55,6 +55,7 @@ public class EmissionReception implements Runnable {
 		byteAEmettre = HammingEncodeAndDecode.code(byteAEmettre);
 		
 		if(tamponEmission.ajouterTrame(byteAEmettre)) {
+			System.out.println("["+ Thread.currentThread().getName() + "] Trame de A1B1 mise dans mon tampon");
 			pretAEmettre = true;
 		}
 	}
@@ -62,6 +63,7 @@ public class EmissionReception implements Runnable {
 	private void envoyerTrame() {
 		// Si on arrive à envoyer la trame, on la retire du tampon
 		if (canal.setTrameEmise(tamponEmission.getLastTrame())) {
+			//System.out.println("["+ Thread.currentThread().getName() + "] J'envoi une trame à C");
 			tamponEmission.freeLastTrame();
 		}
 	}

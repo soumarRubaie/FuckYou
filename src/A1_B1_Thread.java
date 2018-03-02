@@ -51,7 +51,6 @@ public class A1_B1_Thread extends Thread {
 	public void recevoirTrame() {
 		if (!isPretARecevoir()) {
 			if (!trameRecue.isACK()) {
-				trameRecue.display();
 				// Ecriture dans le fichier
 					try {
 						PrintWriter writer = new PrintWriter(new FileOutputStream(new File("output.txt"), true));
@@ -68,8 +67,13 @@ public class A1_B1_Thread extends Thread {
 				
 				Trame trameACK = new Trame(new byte[] {0,0,0,0}, idStation, destinataire, 1);
 				a2PretAEmettre = emissionReception.isPretAEmettre();
+				int compteur = 0;
 				while (!a2PretAEmettre) {
 					try {
+						compteur ++;
+						if (compteur%20 ==0) {
+							System.out.println("["+ Thread.currentThread().getName() + "] B2 n'est pas dispo depuis longtemps!");
+						}
 						Thread.sleep(100);
 						a2PretAEmettre = emissionReception.isPretAEmettre();
 					} catch (InterruptedException e) {
@@ -150,12 +154,9 @@ public class A1_B1_Thread extends Thread {
 				byte[] temp = new byte[4];
 				for (int i = 0; i < 4; i++) {
 					if (i < bytesRestant) {
-						temp[i] = 0x00;
+						temp[i] = bytes[bytes.length - bytesRestant + i];
 					} else {
-						System.out.println("["+ Thread.currentThread().getName() + "]: " + bytes.length);
-						System.out.println("["+ Thread.currentThread().getName() + "]: " + bytesRestant);
-						System.out.println("["+ Thread.currentThread().getName() + "]: " + i);
-						temp[i] = bytes[limite + i - 4];
+						temp[i] = 0x00;
 					}
 				}
 				this.trameA1 = new Trame(temp, idStation, destinataire, 0);
