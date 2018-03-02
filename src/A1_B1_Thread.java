@@ -72,7 +72,9 @@ public class A1_B1_Thread extends Thread {
 					try {
 						compteur ++;
 						if (compteur%20 ==0) {
-							System.out.println("["+ Thread.currentThread().getName() + "] B2 n'est pas dispo depuis longtemps!");
+							System.out.println("["+ Thread.currentThread().getName() + "] B2 n'est pas dispo depuis longtemps! TimeOut: je n'envoi pas d'accusé de reception!");
+							pretARecevoir = true;
+							return;
 						}
 						Thread.sleep(100);
 						a2PretAEmettre = emissionReception.isPretAEmettre();
@@ -165,6 +167,7 @@ public class A1_B1_Thread extends Thread {
 					try {
 						Thread.sleep(100);
 						a2PretAEmettre = emissionReception.isPretAEmettre();
+						recevoirTrame();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -181,10 +184,10 @@ public class A1_B1_Thread extends Thread {
 		PrintWriter writer;
 		if(!read) {
 			try {
-				writer = new PrintWriter("output.txt");
+				writer = new PrintWriter("output.txt", "utf-8");
 				writer.print("");
 				writer.close();
-			} catch (FileNotFoundException e2) {
+			} catch (FileNotFoundException | UnsupportedEncodingException e2) {
 				e2.printStackTrace();
 			}
 		}
