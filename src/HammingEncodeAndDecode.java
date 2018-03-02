@@ -4,7 +4,7 @@
 
 public class HammingEncodeAndDecode {
 	
-	public static byte[] code(byte[] Octets) {
+	public static byte[] encode(byte[] Octets) {
 		
 		boolean bits[] = byteArray2BitArray(Octets);
 		int nbDonnees = bits.length;

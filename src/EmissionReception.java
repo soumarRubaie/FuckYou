@@ -52,7 +52,7 @@ public class EmissionReception implements Runnable {
 
 	private void traiterTrameAEmettre() {
 		byteAEmettre = trameAEmettre.getTrameToByte();
-		byteAEmettre = HammingEncodeAndDecode.code(byteAEmettre);
+		byteAEmettre = HammingEncodeAndDecode.encode(byteAEmettre);
 		
 		if(tamponEmission.ajouterTrame(byteAEmettre)) {
 //			System.out.println("["+ Thread.currentThread().getName() + "] Trame de A1B1 mise dans mon tampon");
